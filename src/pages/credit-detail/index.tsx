@@ -39,23 +39,10 @@ const CreditDetailPage: React.FC = () => {
     return { totalBorrowed, totalRepaid, outstanding };
   }, [customerRecords]);
 
-  const filteredRecords = useMemo(() => {
-    let records = [...customerRecords];
-    const now = dayjs();
-    if (filter === 'week') {
-      const startOfWeek = now.startOf('week').valueOf();
-      records = records.filter(r => r.createdAt >= startOfWeek);
-    } else if (filter === 'month') {
-      const startOfMonth = now.startOf('month').valueOf();
-      records = records.filter(r => r.createdAt >= startOfMonth);
-    }
-    return records;
-  }, [customerRecords, filter]);
-
-  const recordsWithBalance = useMemo(() => {
-    const sorted = [...filteredRecords].sort((a, b) => a.createdAt - b.createdAt);
+  const allRecordsWithBalance = useMemo(() => {
+    const sorted = [...customerRecords].sort((a, b) => a.createdAt - b.createdAt);
     let balance = 0;
-    const withBalance = sorted.map(r => {
+    return sorted.map(r => {
       if (r.type === 'borrow') {
         balance += r.amount;
       } else {
@@ -63,7 +50,42 @@ const CreditDetailPage: React.FC = () => {
       }
       return { ...r, balance: Math.max(0, balance) };
     });
-    return withBalance.sort((a, b) => b.createdAt - a.createdAt);
+  }, [customerRecords]);
+
+  const { filteredRecords, openingBalance, closingBalance } = useMemo(() => {
+    const now = dayjs();
+    let startTime = 0;
+    if (filter === 'week') {
+      startTime = now.startOf('week').valueOf();
+    } else if (filter === 'month') {
+      startTime = now.startOf('month').valueOf();
+    }
+
+    const filtered = filter === 'all'
+      ? allRecordsWithBalance
+      : allRecordsWithBalance.filter(r => r.createdAt >= startTime);
+
+    let opening = 0;
+    if (filter !== 'all' && allRecordsWithBalance.length > 0) {
+      const beforeStart = allRecordsWithBalance.filter(r => r.createdAt < startTime);
+      if (beforeStart.length > 0) {
+        opening = beforeStart[beforeStart.length - 1].balance;
+      }
+    }
+
+    const closing = filtered.length > 0
+      ? filtered[filtered.length - 1].balance
+      : opening;
+
+    return {
+      filteredRecords: filtered,
+      openingBalance: opening,
+      closingBalance: closing,
+    };
+  }, [allRecordsWithBalance, filter]);
+
+  const recordsWithBalance = useMemo(() => {
+    return [...filteredRecords].sort((a, b) => b.createdAt - a.createdAt);
   }, [filteredRecords]);
 
   const handleBorrow = () => {
@@ -196,6 +218,12 @@ const CreditDetailPage: React.FC = () => {
         </View>
       ) : (
         <View className={styles.txTimeline}>
+          {filter !== 'all' && (
+            <View className={styles.balanceRow}>
+              <Text className={styles.balanceLabel}>期初余额</Text>
+              <Text className={styles.balanceValue}>¥{openingBalance.toFixed(2)}</Text>
+            </View>
+          )}
           {recordsWithBalance.map(r => (
             <View key={r.id} className={styles.txItem}>
               <View className={styles.txItemLeft}>
@@ -220,6 +248,10 @@ const CreditDetailPage: React.FC = () => {
               </View>
             </View>
           ))}
+          <View className={styles.balanceRow}>
+            <Text className={styles.balanceLabel}>当前余额</Text>
+            <Text className={styles.balanceValue}>¥{closingBalance.toFixed(2)}</Text>
+          </View>
         </View>
       )}
 

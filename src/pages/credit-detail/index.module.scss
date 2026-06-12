@@ -191,6 +191,30 @@
   text-align: right;
 }
 
+.balanceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+    border-top: 1rpx solid $color-divider;
+  }
+}
+
+.balanceLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.balanceValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
 .emptyState {
   padding: $spacing-xl * 2;
   display: flex;

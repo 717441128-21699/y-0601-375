@@ -105,15 +105,29 @@ const DashboardPage: React.FC = () => {
     const result = methods.map(method => {
       const methodTx = periodTransactions.filter(t => t.type === 'income' && t.method === method);
       const totalAmount = methodTx.reduce((s, t) => s + t.amount, 0);
+      let totalCost = 0;
+      methodTx.forEach(t => {
+        if (t.productId) {
+          const product = products.find(p => p.id === t.productId);
+          if (product) {
+            totalCost += product.costPrice * (t.quantity || 0);
+          }
+        }
+      });
+      const profit = totalAmount - totalCost;
+      const profitRate = totalAmount > 0 ? calculateProfitRate(totalAmount, totalCost) : 0;
       return {
         method,
         totalAmount,
+        totalCost,
+        profit,
+        profitRate,
         count: methodTx.length,
         percent: stats.totalIncome > 0 ? Math.round((totalAmount / stats.totalIncome) * 100) : 0,
       };
     });
     return result.sort((a, b) => b.totalAmount - a.totalAmount);
-  }, [periodTransactions, stats.totalIncome, days, period, transactions]);
+  }, [periodTransactions, products, stats.totalIncome, days, period, transactions]);
 
   const profitRankProducts = useMemo(() => {
     const list: Array<{
@@ -195,8 +209,8 @@ const DashboardPage: React.FC = () => {
   const methodIcons: Record<string, string> = {
     cash: '💵',
     scan: '📱',
-    credit: '📒',
-    transfer: '🏦',
+    credit: '�',
+    transfer: '💸',
   };
 
   return (
@@ -318,33 +332,37 @@ const DashboardPage: React.FC = () => {
 
       <View className={classnames(styles.paymentBreakdownSection)}>
         <SectionHeader title="💳 收款方式利润拆解" />
-        <View className={classnames(styles.paymentBreakdown)}>
+        <View className={classnames(styles.profitBreakdown)}>
           {paymentBreakdown.map(item => (
-            <View key={item.method} className={classnames(styles.breakdownItem)}>
-              <View className={classnames(styles.breakdownHeader)}>
+            <View key={item.method} className={classnames(styles.breakdownCard)}>
+              <View className={classnames(styles.breakdownCardHeader)}>
                 <View className={classnames(styles.breakdownIcon)} style={{ background: methodColors[item.method] }}>
                   <Text>{methodIcons[item.method]}</Text>
                 </View>
-                <View className={classnames(styles.breakdownInfo)}>
-                  <Text className={classnames(styles.breakdownLabel)}>{getPaymentMethodText(item.method)}</Text>
-                  <Text className={classnames(styles.breakdownPercent)}>占总收入 {item.percent}%</Text>
+                <View className={classnames(styles.breakdownCardTitle)}>
+                  <Text className={classnames(styles.breakdownCardName)}>{getPaymentMethodText(item.method)}</Text>
+                  <Text className={classnames(styles.breakdownCardCount)}>{item.count}笔</Text>
                 </View>
               </View>
-              <View className={classnames(styles.breakdownValues)}>
-                <View className={classnames(styles.breakdownValueItem)}>
-                  <Text className={classnames(styles.breakdownValueLabel)}>收入</Text>
-                  <Text className={classnames(styles.breakdownValue)}>¥{item.totalAmount.toFixed(0)}</Text>
+              <View className={classnames(styles.breakdownCardBody)}>
+                <View className={classnames(styles.breakdownStat)}>
+                  <Text className={classnames(styles.breakdownStatLabel)}>收入</Text>
+                  <Text className={classnames(styles.breakdownStatValue)}>¥{item.totalAmount.toFixed(0)}</Text>
                 </View>
-                <View className={classnames(styles.breakdownValueItem)}>
-                  <Text className={classnames(styles.breakdownValueLabel)}>笔数</Text>
-                  <Text className={classnames(styles.breakdownValue)}>{item.count}笔</Text>
+                <View className={classnames(styles.breakdownStat)}>
+                  <Text className={classnames(styles.breakdownStatLabel)}>估算成本</Text>
+                  <Text className={classnames(styles.breakdownStatValue)}>¥{item.totalCost.toFixed(0)}</Text>
                 </View>
-              </View>
-              <View className={classnames(styles.breakdownBar)}>
-                <View
-                  className={classnames(styles.breakdownBarFill)}
-                  style={{ width: `${item.percent}%`, background: methodColors[item.method] }}
-                />
+                <View className={classnames(styles.breakdownStat)}>
+                  <Text className={classnames(styles.breakdownStatLabel)}>利润</Text>
+                  <Text className={classnames(styles.breakdownStatValue, styles.breakdownProfit, item.profit >= 0 ? styles.profitPositive : styles.profitNegative)}>
+                    ¥{item.profit.toFixed(0)}
+                  </Text>
+                </View>
+                <View className={classnames(styles.breakdownStat)}>
+                  <Text className={classnames(styles.breakdownStatLabel)}>毛利率</Text>
+                  <Text className={classnames(styles.breakdownStatValue, styles.breakdownRate)}>{item.profitRate.toFixed(1)}%</Text>
+                </View>
               </View>
             </View>
           ))}

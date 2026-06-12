@@ -395,90 +395,91 @@
   box-shadow: $shadow-card;
 }
 
-.paymentBreakdown {
+.profitBreakdown {
   margin-top: $spacing-sm;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: $spacing-md;
 }
 
-.breakdownItem {
+.breakdownCard {
   background: $color-bg-page;
   border-radius: $radius-md;
   padding: $spacing-md;
+  border: 2rpx solid rgba($color-primary, 0.08);
 }
 
-.breakdownHeader {
+.breakdownCardHeader {
   display: flex;
   align-items: center;
   margin-bottom: $spacing-md;
 }
 
 .breakdownIcon {
-  width: 72rpx;
-  height: 72rpx;
+  width: 64rpx;
+  height: 64rpx;
   border-radius: $radius-md;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36rpx;
-  margin-right: $spacing-md;
+  font-size: 32rpx;
+  margin-right: $spacing-sm;
   flex-shrink: 0;
 }
 
-.breakdownInfo {
+.breakdownCardTitle {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
-.breakdownLabel {
+.breakdownCardName {
   font-size: $font-size-md;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
-  margin-bottom: 4rpx;
+  margin-bottom: 2rpx;
 }
 
-.breakdownPercent {
+.breakdownCardCount {
   font-size: $font-size-xs;
   color: $color-text-tertiary;
 }
 
-.breakdownValues {
-  display: flex;
-  gap: $spacing-lg;
-  margin-bottom: $spacing-md;
+.breakdownCardBody {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
 }
 
-.breakdownValueItem {
+.breakdownStat {
   display: flex;
   flex-direction: column;
 }
 
-.breakdownValueLabel {
-  font-size: $font-size-xs;
+.breakdownStatLabel {
+  font-size: 20rpx;
   color: $color-text-tertiary;
   margin-bottom: 4rpx;
 }
 
-.breakdownValue {
-  font-size: $font-size-md;
+.breakdownStatValue {
+  font-size: $font-size-sm;
   font-weight: $font-weight-bold;
   color: $color-text-primary;
 }
 
-.breakdownBar {
-  height: 12rpx;
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: $radius-round;
-  overflow: hidden;
+.breakdownProfit {
+  &.profitPositive {
+    color: $color-success;
+  }
+  &.profitNegative {
+    color: $color-error;
+  }
 }
 
-.breakdownBarFill {
-  height: 100%;
-  border-radius: $radius-round;
-  transition: width $transition-base;
+.breakdownRate {
+  color: $color-primary;
 }
 
 .profitRankSection {

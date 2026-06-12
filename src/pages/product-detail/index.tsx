@@ -4,12 +4,12 @@ import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useStore } from '../../store/useStore';
-import { formatMoney, calculateProfitRate, formatDate, getTransactionTypeText, getPaymentMethodText } from '../../utils';
+import { formatMoney, calculateProfitRate, formatDate, getTransactionTypeText, getPaymentMethodText, getTodayStr } from '../../utils';
 import SectionHeader from '../../components/SectionHeader';
 
 const ProductDetailPage: React.FC = () => {
   const router = useRouter();
-  const { products, transactions, updateProductStock } = useStore();
+  const { products, transactions, addTransaction } = useStore();
   const productId = router.params?.id;
 
   const product = useMemo(() => products.find(p => p.id === productId), [products, productId]);
@@ -24,7 +24,7 @@ const ProductDetailPage: React.FC = () => {
   const stockTx = useMemo(() => {
     if (!productId) return [];
     return transactions
-      .filter(t => t.productId === productId && (t.type === 'income' || t.type === 'purchase' || t.type === 'loss'))
+      .filter(t => t.productId === productId && (t.type === 'income' || t.type === 'purchase' || t.type === 'loss' || t.type === 'adjust'))
       .sort((a, b) => b.createdAt - a.createdAt);
   }, [transactions, productId]);
 
@@ -33,39 +33,69 @@ const ProductDetailPage: React.FC = () => {
   const totalRevenue = productTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalCost = productTx.filter(t => t.type === 'purchase').reduce((s, t) => s + t.amount, 0);
 
-  const handleStockChange = (delta: number) => {
-    if (!productId) return;
-    if (delta < 0) {
-      Taro.showModal({
-        title: '减少库存',
-        editable: true,
-        placeholderText: '请输入减少数量',
-        success: (res) => {
-          if (res.confirm && res.content) {
-            const n = parseInt(res.content) || 0;
-            if (n > 0) {
-              updateProductStock(productId, -n);
-              Taro.showToast({ title: '已更新', icon: 'success' });
-            }
+  const handleRestock = () => {
+    if (!productId || !product) return;
+    Taro.showModal({
+      title: '补货数量',
+      editable: true,
+      placeholderText: '请输入补货数量',
+      success: (qtyRes) => {
+        if (qtyRes.confirm && qtyRes.content) {
+          const qty = parseInt(qtyRes.content) || 0;
+          if (qty > 0) {
+            Taro.showModal({
+              title: '进货单价',
+              editable: true,
+              placeholderText: `成本价 ¥${product.costPrice}`,
+              success: (priceRes) => {
+                const unitPrice = parseFloat(priceRes.content) || product.costPrice;
+                const totalAmount = qty * unitPrice;
+                addTransaction({
+                  type: 'purchase',
+                  amount: totalAmount,
+                  method: 'transfer',
+                  productId: product.id,
+                  productName: product.name,
+                  quantity: qty,
+                  unitPrice,
+                  note: '商品详情页补货',
+                  date: getTodayStr(),
+                });
+                Taro.showToast({ title: '已记录', icon: 'success' });
+              }
+            });
           }
         }
-      });
-    } else {
-      Taro.showModal({
-        title: '增加库存',
-        editable: true,
-        placeholderText: '请输入增加数量',
-        success: (res) => {
-          if (res.confirm && res.content) {
-            const n = parseInt(res.content) || 0;
-            if (n > 0) {
-              updateProductStock(productId, n);
-              Taro.showToast({ title: '已更新', icon: 'success' });
-            }
+      }
+    });
+  };
+
+  const handleLoss = () => {
+    if (!productId || !product) return;
+    Taro.showModal({
+      title: '盘减数量',
+      editable: true,
+      placeholderText: '请输入盘减数量',
+      success: (res) => {
+        if (res.confirm && res.content) {
+          const qty = parseInt(res.content) || 0;
+          if (qty > 0) {
+            addTransaction({
+              type: 'loss',
+              amount: qty * product.costPrice,
+              method: 'cash',
+              productId: product.id,
+              productName: product.name,
+              quantity: qty,
+              unitPrice: product.costPrice,
+              note: '商品详情页盘减',
+              date: getTodayStr(),
+            });
+            Taro.showToast({ title: '已记录', icon: 'success' });
           }
         }
-      });
-    }
+      }
+    });
   };
 
   if (!product) {
@@ -129,10 +159,10 @@ const ProductDetailPage: React.FC = () => {
             </Text>
           </View>
           <View className={styles.stockBtns}>
-            <View className={classnames(styles.stockBtn, styles.btnAdd)} onClick={() => handleStockChange(1)}>
+            <View className={classnames(styles.stockBtn, styles.btnAdd)} onClick={handleRestock}>
               + 补货
             </View>
-            <View className={classnames(styles.stockBtn, styles.btnMinus)} onClick={() => handleStockChange(-1)}>
+            <View className={classnames(styles.stockBtn, styles.btnMinus)} onClick={handleLoss}>
               - 盘减
             </View>
           </View>
@@ -186,11 +216,17 @@ const ProductDetailPage: React.FC = () => {
           <View className={styles.stockTimeline}>
             {stockTx.map((t, idx) => {
               const isLast = idx === stockTx.length - 1;
-              const typeConfig = {
-                income: { icon: '📉', name: '销售', dotClass: styles.dotSale, changeClass: styles.changeSale, prefix: '-' },
-                purchase: { icon: '📈', name: '进货', dotClass: styles.dotPurchase, changeClass: styles.changePurchase, prefix: '+' },
-                loss: { icon: '🗑️', name: '损耗', dotClass: styles.dotLoss, changeClass: styles.changeLoss, prefix: '-' },
-              }[t.type] || { icon: '📦', name: '其他', dotClass: '', changeClass: '', prefix: '' };
+              const qty = t.quantity || 0;
+              const isPositive = qty >= 0;
+              const typeConfigMap: Record<string, { icon: string; name: string; dotClass: string; changeClass: string }> = {
+                income: { icon: '📉', name: '销售', dotClass: styles.dotSale, changeClass: styles.changeSale },
+                purchase: { icon: '📈', name: '进货', dotClass: styles.dotPurchase, changeClass: styles.changePurchase },
+                loss: { icon: '🗑️', name: '损耗', dotClass: styles.dotLoss, changeClass: styles.changeLoss },
+                adjust: { icon: '🔧', name: '盘点调整', dotClass: styles.dotAdjust, changeClass: styles.changeAdjust },
+              };
+              const typeConfig = typeConfigMap[t.type] || { icon: '📦', name: '其他', dotClass: '', changeClass: '' };
+              const prefix = t.type === 'adjust' ? (isPositive ? '+' : '-') : typeConfigMap[t.type] ? (t.type === 'purchase' ? '+' : '-') : '';
+              const displayQty = t.type === 'adjust' ? Math.abs(qty) : qty;
               return (
                 <View key={t.id} className={styles.stockTimelineItem}>
                   <View className={styles.stockTimelineLeft}>
@@ -216,7 +252,7 @@ const ProductDetailPage: React.FC = () => {
                   </View>
                   <View className={styles.stockTimelineRight}>
                     <Text className={classnames(styles.stockTimelineChange, typeConfig.changeClass)}>
-                      {typeConfig.prefix}{t.quantity}{product?.unit}
+                      {prefix}{displayQty}{product?.unit}
                     </Text>
                   </View>
                 </View>

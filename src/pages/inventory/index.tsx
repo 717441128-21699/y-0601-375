@@ -15,6 +15,7 @@ interface RestockResultData {
   productName: string;
   emoji: string;
   unit: string;
+  minStock: number;
   stockBefore: number;
   stockAfter: number;
   restockQty: number;
@@ -22,6 +23,10 @@ interface RestockResultData {
   totalAmount: number;
   levelBefore: StockLevel;
   levelAfter: StockLevel;
+  restockTime: string;
+  recordType: string;
+  stockRatioBefore: number;
+  stockRatioAfter: number;
 }
 
 const InventoryPage: React.FC = () => {
@@ -153,11 +158,16 @@ const InventoryPage: React.FC = () => {
                   note: `库存提醒页快速补货`,
                   date: getTodayStr(),
                 });
+                const now = Date.now();
+                const timeStr = new Date(now).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                const stockRatioBefore = stockBefore / product.minStock;
+                const stockRatioAfter = stockAfter / product.minStock;
                 setRestockResult({
                   productId: product.id,
                   productName: product.name,
                   emoji: getProductEmoji(product.name),
                   unit: product.unit,
+                  minStock: product.minStock,
                   stockBefore,
                   stockAfter,
                   restockQty: qty,
@@ -165,6 +175,10 @@ const InventoryPage: React.FC = () => {
                   totalAmount,
                   levelBefore,
                   levelAfter,
+                  restockTime: timeStr,
+                  recordType: '进货',
+                  stockRatioBefore,
+                  stockRatioAfter,
                 });
                 setHighlightedProductIds(prev => new Set(prev).add(product.id));
                 console.log('[Inventory] restock:', product.name, qty, unitPrice);
@@ -200,7 +214,17 @@ const InventoryPage: React.FC = () => {
               if (r.confirm && r.content) {
                 const qty = parseInt(r.content) || 0;
                 if (qty > 0) {
-                  updateProductStock(product.id, qty);
+                  addTransaction({
+                    type: 'adjust',
+                    amount: 0,
+                    method: 'cash',
+                    productId: product.id,
+                    productName: product.name,
+                    quantity: qty,
+                    unitPrice: product.costPrice,
+                    note: '盘点增加',
+                    date: getTodayStr(),
+                  });
                   Taro.showToast({ title: '已更新', icon: 'success' });
                 }
               }
@@ -465,29 +489,28 @@ const InventoryPage: React.FC = () => {
               </View>
             </View>
 
+            <View className={classnames(styles.restockStockLevel)}>
+              <View className={styles.stockLevelItem}>
+                <Text className={styles.stockLevelLabel}>补货前</Text>
+                <Text className={styles.stockLevelValue}>{restockResult.stockBefore}{restockResult.unit}</Text>
+                <Text className={styles.stockLevelSub}>最低线的 {restockResult.stockRatioBefore.toFixed(1)} 倍</Text>
+              </View>
+              <View className={styles.stockLevelArrow}>→</View>
+              <View className={styles.stockLevelItem}>
+                <Text className={styles.stockLevelLabel}>补货后</Text>
+                <Text className={classnames(styles.stockLevelValue, styles.stockLevelAfter)}>{restockResult.stockAfter}{restockResult.unit}</Text>
+                <Text className={styles.stockLevelSub}>最低线的 {restockResult.stockRatioAfter.toFixed(1)} 倍</Text>
+              </View>
+            </View>
+
             <View className={styles.restockModalRow}>
-              <Text className={styles.restockModalLabel}>补货前库存</Text>
-              <Text className={styles.restockModalValue}>{restockResult.stockBefore}{restockResult.unit}</Text>
+              <Text className={styles.restockModalLabel}>最低库存线</Text>
+              <Text className={styles.restockModalValue}>{restockResult.minStock}{restockResult.unit}</Text>
             </View>
 
             <View className={styles.restockModalRow}>
               <Text className={styles.restockModalLabel}>补货数量</Text>
               <Text className={styles.restockModalValue}>+{restockResult.restockQty}{restockResult.unit}</Text>
-            </View>
-
-            <View className={styles.restockModalRow}>
-              <Text className={styles.restockModalLabel}>补货后库存</Text>
-              <Text className={styles.restockModalValue}>{restockResult.stockAfter}{restockResult.unit}</Text>
-            </View>
-
-            <View className={styles.restockModalRow}>
-              <Text className={styles.restockModalLabel}>进货单价</Text>
-              <Text className={styles.restockModalValue}>¥{restockResult.unitPrice.toFixed(2)}</Text>
-            </View>
-
-            <View className={styles.restockModalRow}>
-              <Text className={styles.restockModalLabel}>总金额</Text>
-              <Text className={styles.restockModalValue}>¥{restockResult.totalAmount.toFixed(2)}</Text>
             </View>
 
             <View className={styles.restockModalRow}>
@@ -501,6 +524,40 @@ const InventoryPage: React.FC = () => {
                   {getStockLevelLabel(restockResult.levelAfter).text}
                 </Text>
               </View>
+            </View>
+
+            <View className={classnames(styles.restockRecordInfo)}>
+              <Text className={styles.restockRecordTitle}>📋 进货记录详情</Text>
+              <View className={styles.restockRecordTime}>
+                <Text className={styles.recordTimeIcon}>🕐</Text>
+                <Text className={styles.recordTimeText}>{restockResult.restockTime}</Text>
+              </View>
+              <View className={styles.restockRecordRow}>
+                <Text className={styles.restockRecordLabel}>记录类型</Text>
+                <Text className={styles.restockRecordValue}>{restockResult.recordType}</Text>
+              </View>
+              <View className={styles.restockRecordRow}>
+                <Text className={styles.restockRecordLabel}>补货数量</Text>
+                <Text className={styles.restockRecordValue}>+{restockResult.restockQty}{restockResult.unit}</Text>
+              </View>
+              <View className={styles.restockRecordRow}>
+                <Text className={styles.restockRecordLabel}>进货单价</Text>
+                <Text className={styles.restockRecordValue}>¥{restockResult.unitPrice.toFixed(2)}</Text>
+              </View>
+              <View className={styles.restockRecordRow}>
+                <Text className={styles.restockRecordLabel}>总金额</Text>
+                <Text className={classnames(styles.restockRecordValue, styles.recordTotalAmount)}>¥{restockResult.totalAmount.toFixed(2)}</Text>
+              </View>
+            </View>
+
+            <View className={classnames(styles.restockStatusTip, restockResult.levelAfter === 'normal' ? styles.statusNormal : restockResult.levelAfter === 'warning' ? styles.statusWarning : styles.statusCritical)}>
+              <Text className={styles.statusTipIcon}>
+                {restockResult.levelAfter === 'normal' ? '✅' : restockResult.levelAfter === 'warning' ? '⚠️' : '🚨'}
+              </Text>
+              <Text className={styles.statusTipText}>
+                当前库存是最低线的 {restockResult.stockRatioAfter.toFixed(1)} 倍，
+                {restockResult.levelAfter === 'normal' ? '已恢复安全水位' : restockResult.levelAfter === 'warning' ? '仍在预警水位，请关注' : '仍处于紧急状态，建议继续补货'}
+              </Text>
             </View>
 
             <View className={styles.restockModalBtns}>

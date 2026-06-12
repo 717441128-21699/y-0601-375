@@ -1,4 +1,4 @@
-export type TransactionType = 'income' | 'expense' | 'purchase' | 'rent' | 'transport' | 'loss';
+export type TransactionType = 'income' | 'expense' | 'purchase' | 'rent' | 'transport' | 'loss' | 'adjust';
 export type PaymentMethod = 'cash' | 'scan' | 'credit' | 'transfer';
 
 export interface Transaction {

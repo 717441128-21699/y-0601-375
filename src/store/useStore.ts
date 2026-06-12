@@ -110,6 +110,11 @@ export const useStore = create<AppState>((set, get) => {
                 ...newProducts[idx],
                 stock: Math.max(0, newProducts[idx].stock - (tx.quantity || 0)),
               };
+            } else if (tx.type === 'adjust') {
+              newProducts[idx] = {
+                ...newProducts[idx],
+                stock: Math.max(0, newProducts[idx].stock + (tx.quantity || 0)),
+              };
             }
           }
         }

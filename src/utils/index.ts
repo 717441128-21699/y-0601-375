@@ -58,7 +58,8 @@ export const getTransactionTypeText = (type: string): string => {
     purchase: '进货',
     rent: '摊位费',
     transport: '运输费',
-    loss: '损耗'
+    loss: '损耗',
+    adjust: '库存调整'
   };
   return map[type] || type;
 };
