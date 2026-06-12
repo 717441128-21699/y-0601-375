@@ -9,7 +9,8 @@ export default defineAppConfig({
     'pages/calendar/index',
     'pages/credit/index',
     'pages/inventory/index',
-    'pages/export/index'
+    'pages/export/index',
+    'pages/credit-detail/index'
   ],
   window: {
     backgroundTextStyle: 'light',

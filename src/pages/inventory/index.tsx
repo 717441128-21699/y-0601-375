@@ -8,10 +8,27 @@ import { formatMoney, getTodayStr, formatDate } from '../../utils';
 import { Product } from '../../types';
 
 type FilterType = 'all' | 'critical' | 'warning' | 'normal';
+type StockLevel = 'critical' | 'warning' | 'normal';
+
+interface RestockResultData {
+  productId: string;
+  productName: string;
+  emoji: string;
+  unit: string;
+  stockBefore: number;
+  stockAfter: number;
+  restockQty: number;
+  unitPrice: number;
+  totalAmount: number;
+  levelBefore: StockLevel;
+  levelAfter: StockLevel;
+}
 
 const InventoryPage: React.FC = () => {
   const { products, transactions, updateProduct, updateProductStock, addTransaction } = useStore();
   const [filter, setFilter] = useState<FilterType>('all');
+  const [restockResult, setRestockResult] = useState<RestockResultData | null>(null);
+  const [highlightedProductIds, setHighlightedProductIds] = useState<Set<string>>(new Set());
 
   const getStockLevel = (product: Product): 'critical' | 'warning' | 'normal' => {
     const ratio = product.stock / product.minStock;
@@ -68,22 +85,40 @@ const InventoryPage: React.FC = () => {
       }));
   }, [transactions, products]);
 
-  const filteredProducts = useMemo(() => {
+  const { highlightedProducts, normalFilteredProducts } = useMemo(() => {
+    let baseFiltered: Product[];
     if (filter === 'all') {
-      return products.filter(p => getStockLevel(p) !== 'normal');
+      baseFiltered = products.filter(p => getStockLevel(p) !== 'normal');
+    } else if (filter === 'normal') {
+      baseFiltered = products.filter(p => getStockLevel(p) === filter);
+    } else {
+      baseFiltered = products.filter(p => getStockLevel(p) === filter);
     }
-    return products.filter(p => getStockLevel(p) === filter);
-  }, [products, filter, transactions]);
-
-  const sortedProducts = useMemo(() => {
-    return [...filteredProducts].sort((a, b) => {
+    const highlighted: Product[] = [];
+    const normalFiltered: Product[] = [];
+    baseFiltered.forEach(p => {
+      if (highlightedProductIds.has(p.id)) {
+        highlighted.push(p);
+      } else {
+        normalFiltered.push(p);
+      }
+    });
+    products.forEach(p => {
+      if (highlightedProductIds.has(p.id) && !highlighted.find(h => h.id === p.id)) {
+        highlighted.push(p);
+      }
+    });
+    const sortFn = (a: Product, b: Product) => {
       const levelA = getStockLevel(a);
       const levelB = getStockLevel(b);
       const order = { critical: 0, warning: 1, normal: 2 };
       if (order[levelA] !== order[levelB]) return order[levelA] - order[levelB];
       return a.stock / a.minStock - b.stock / b.minStock;
-    });
-  }, [filteredProducts]);
+    };
+    highlighted.sort(sortFn);
+    normalFiltered.sort(sortFn);
+    return { highlightedProducts: highlighted, normalFilteredProducts: normalFiltered };
+  }, [products, filter, transactions, highlightedProductIds]);
 
   const handleQuickRestock = (product: Product) => {
     const recommended = getRestockAmount(product);
@@ -102,6 +137,11 @@ const InventoryPage: React.FC = () => {
               success: (priceRes) => {
                 const unitPrice = parseFloat(priceRes.content) || product.costPrice;
                 const totalAmount = qty * unitPrice;
+                const stockBefore = product.stock;
+                const stockAfter = stockBefore + qty;
+                const levelBefore = getStockLevel(product);
+                const tempProduct: Product = { ...product, stock: stockAfter };
+                const levelAfter = getStockLevel(tempProduct);
                 addTransaction({
                   type: 'purchase',
                   amount: totalAmount,
@@ -113,7 +153,20 @@ const InventoryPage: React.FC = () => {
                   note: `库存提醒页快速补货`,
                   date: getTodayStr(),
                 });
-                Taro.showToast({ title: '已补货', icon: 'success' });
+                setRestockResult({
+                  productId: product.id,
+                  productName: product.name,
+                  emoji: getProductEmoji(product.name),
+                  unit: product.unit,
+                  stockBefore,
+                  stockAfter,
+                  restockQty: qty,
+                  unitPrice,
+                  totalAmount,
+                  levelBefore,
+                  levelAfter,
+                });
+                setHighlightedProductIds(prev => new Set(prev).add(product.id));
                 console.log('[Inventory] restock:', product.name, qty, unitPrice);
               }
             });
@@ -121,6 +174,17 @@ const InventoryPage: React.FC = () => {
         }
       }
     });
+  };
+
+  const handleCloseRestockModal = () => {
+    setRestockResult(null);
+  };
+
+  const handleViewProductDetail = () => {
+    if (restockResult) {
+      Taro.navigateTo({ url: `/pages/product-detail/index?id=${restockResult.productId}` });
+      setRestockResult(null);
+    }
   };
 
   const handleAdjustStock = (product: Product) => {
@@ -200,6 +264,107 @@ const InventoryPage: React.FC = () => {
     return '📦';
   };
 
+  const getStockLevelLabel = (level: StockLevel) => {
+    if (level === 'critical') return { text: '🚨 紧急', color: '#EF4444' };
+    if (level === 'warning') return { text: '⚠️ 预警', color: '#F59E0B' };
+    return { text: '✅ 正常', color: '#22C55E' };
+  };
+
+  const renderProductCard = (p: Product) => {
+    const level = getStockLevel(p);
+    const progress = Math.min(100, (p.stock / (p.minStock * 2)) * 100);
+    const days = getDaysUntilOut(p);
+    const daysText = days >= 999 ? '暂无销售记录' : `预计 ${days} 天后缺货`;
+    const handleProductClick = () => {
+      Taro.navigateTo({ url: `/pages/product-detail/index?id=${p.id}` });
+    };
+    const levelInfo = getStockLevelLabel(level);
+    return (
+      <View
+        key={p.id}
+        className={classnames(styles.productCard, level === 'critical' ? styles.critical : '', styles.clickable)}
+        onClick={handleProductClick}
+      >
+        {level !== 'normal' && (
+          <View
+            className={classnames(styles.alertBadge, level === 'critical' ? styles.critical : styles.warning)}
+          >
+            {levelInfo.text}
+          </View>
+        )}
+
+        <View className={styles.productHeader}>
+          <View className={styles.productEmoji}>{getProductEmoji(p.name)}</View>
+          <View className={styles.productInfo}>
+            <Text className={styles.productName}>{p.name}</Text>
+            <Text className={styles.productCategory}>
+              {p.category} · 成本 {formatMoney(p.costPrice)} · 售价 {formatMoney(p.salePrice)}
+            </Text>
+          </View>
+        </View>
+
+        <View className={styles.stockProgress}>
+          <View className={styles.progressHeader}>
+            <Text className={styles.progressLabel}>库存水位</Text>
+            <Text className={classnames(styles.progressValue, level === 'critical' ? styles.critical : level === 'warning' ? styles.warning : styles.normal)}>
+              {p.stock}{p.unit} / 最低 {p.minStock}{p.unit}
+            </Text>
+          </View>
+          <View className={styles.progressBar}>
+            <View
+              className={classnames(
+                styles.progressFill,
+                level === 'critical' ? styles.critical : level === 'warning' ? styles.warning : styles.normal
+              )}
+              style={{ width: `${progress}%` }}
+            />
+          </View>
+        </View>
+
+        <View className={styles.stockDetails}>
+          <View className={styles.detailItem}>
+            <Text className={styles.detailLabel}>当前库存</Text>
+            <Text className={styles.detailValue}>{p.stock}{p.unit}</Text>
+          </View>
+          <View className={styles.detailItem}>
+            <Text className={styles.detailLabel}>最低库存</Text>
+            <Text className={styles.detailValue}>{p.minStock}{p.unit}</Text>
+          </View>
+          <View className={styles.detailItem}>
+            <Text className={styles.detailLabel}>建议补货</Text>
+            <Text className={styles.detailValue}>{getRestockAmount(p)}{p.unit}</Text>
+          </View>
+          <View className={styles.detailItem}>
+            <Text className={styles.detailLabel}>库存价值</Text>
+            <Text className={styles.detailValue}>¥{(p.stock * p.costPrice).toFixed(0)}</Text>
+          </View>
+        </View>
+
+        {days <= 3 && level !== 'normal' && (
+          <View className={styles.daysAlert}>
+            <Text className={styles.alertIcon}>⏰</Text>
+            <Text className={styles.alertText}>{daysText}，建议尽快补货</Text>
+          </View>
+        )}
+
+        <View className={styles.actionRow}>
+          <View
+            className={classnames(styles.actionBtn, styles.btnAdjust)}
+            onClick={(e) => { e.stopPropagation(); handleAdjustStock(p); }}
+          >
+            🔧 调整库存
+          </View>
+          <View
+            className={classnames(styles.actionBtn, styles.btnRestock)}
+            onClick={(e) => { e.stopPropagation(); handleQuickRestock(p); }}
+          >
+            📦 立即补货
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <ScrollView scrollY className={styles.pageContainer} style={{ height: '100vh' }}>
       <View className={styles.summaryHeader}>
@@ -244,104 +409,22 @@ const InventoryPage: React.FC = () => {
         ))}
       </View>
 
-      {sortedProducts.length === 0 ? (
+      {highlightedProducts.length === 0 && normalFilteredProducts.length === 0 ? (
         <View className={styles.emptyState}>
           <Text className={styles.emptyIcon}>✅</Text>
           <Text className={styles.emptyText}>库存状态良好</Text>
           <Text className={styles.emptyDesc}>暂无需要补货的商品</Text>
         </View>
       ) : (
-        sortedProducts.map(p => {
-          const level = getStockLevel(p);
-          const progress = Math.min(100, (p.stock / (p.minStock * 2)) * 100);
-          const days = getDaysUntilOut(p);
-          const daysText = days >= 999 ? '暂无销售记录' : `预计 ${days} 天后缺货`;
-          const handleProductClick = () => {
-            Taro.navigateTo({ url: `/pages/product-detail/index?id=${p.id}` });
-          };
-          return (
-            <View
-              key={p.id}
-              className={classnames(styles.productCard, level === 'critical' ? styles.critical : '', styles.clickable)}
-              onClick={handleProductClick}
-            >
-              <View
-                className={classnames(styles.alertBadge, level === 'critical' ? styles.critical : styles.warning)}
-              >
-                {level === 'critical' ? '🚨 紧急' : '⚠️ 预警'}
-              </View>
-
-              <View className={styles.productHeader}>
-                <View className={styles.productEmoji}>{getProductEmoji(p.name)}</View>
-                <View className={styles.productInfo}>
-                  <Text className={styles.productName}>{p.name}</Text>
-                  <Text className={styles.productCategory}>
-                    {p.category} · 成本 {formatMoney(p.costPrice)} · 售价 {formatMoney(p.salePrice)}
-                  </Text>
-                </View>
-              </View>
-
-              <View className={styles.stockProgress}>
-                <View className={styles.progressHeader}>
-                  <Text className={styles.progressLabel}>库存水位</Text>
-                  <Text className={classnames(styles.progressValue, level === 'critical' ? styles.critical : styles.warning)}>
-                    {p.stock}{p.unit} / 最低 {p.minStock}{p.unit}
-                  </Text>
-                </View>
-                <View className={styles.progressBar}>
-                  <View
-                    className={classnames(
-                      styles.progressFill,
-                      level === 'critical' ? styles.critical : level === 'warning' ? styles.warning : styles.normal
-                    )}
-                    style={{ width: `${progress}%` }}
-                  />
-                </View>
-              </View>
-
-              <View className={styles.stockDetails}>
-                <View className={styles.detailItem}>
-                  <Text className={styles.detailLabel}>当前库存</Text>
-                  <Text className={styles.detailValue}>{p.stock}{p.unit}</Text>
-                </View>
-                <View className={styles.detailItem}>
-                  <Text className={styles.detailLabel}>最低库存</Text>
-                  <Text className={styles.detailValue}>{p.minStock}{p.unit}</Text>
-                </View>
-                <View className={styles.detailItem}>
-                  <Text className={styles.detailLabel}>建议补货</Text>
-                  <Text className={styles.detailValue}>{getRestockAmount(p)}{p.unit}</Text>
-                </View>
-                <View className={styles.detailItem}>
-                  <Text className={styles.detailLabel}>库存价值</Text>
-                  <Text className={styles.detailValue}>¥{(p.stock * p.costPrice).toFixed(0)}</Text>
-                </View>
-              </View>
-
-              {days <= 3 && level !== 'normal' && (
-                <View className={styles.daysAlert}>
-                  <Text className={styles.alertIcon}>⏰</Text>
-                  <Text className={styles.alertText}>{daysText}，建议尽快补货</Text>
-                </View>
-              )}
-
-              <View className={styles.actionRow}>
-                <View
-                  className={classnames(styles.actionBtn, styles.btnAdjust)}
-                  onClick={(e) => { e.stopPropagation(); handleAdjustStock(p); }}
-                >
-                  🔧 调整库存
-                </View>
-                <View
-                  className={classnames(styles.actionBtn, styles.btnRestock)}
-                  onClick={(e) => { e.stopPropagation(); handleQuickRestock(p); }}
-                >
-                  📦 立即补货
-                </View>
-              </View>
+        <>
+          {highlightedProducts.length > 0 && (
+            <View className={styles.highlightedSection}>
+              <Text className={styles.highlightedTitle}>✨ 刚刚补货</Text>
+              {highlightedProducts.map(p => renderProductCard(p))}
             </View>
-          );
-        })
+          )}
+          {normalFilteredProducts.map(p => renderProductCard(p))}
+        </>
       )}
 
       {restockHistory.length > 0 && (
@@ -366,6 +449,75 @@ const InventoryPage: React.FC = () => {
               <Text className={styles.historyAmount}>+{h.amount}{h.unit}</Text>
             </View>
           ))}
+        </View>
+      )}
+
+      {restockResult && (
+        <View className={styles.restockModal}>
+          <View className={styles.restockModalMask} onClick={handleCloseRestockModal} />
+          <View className={styles.restockModalCard}>
+            <Text className={styles.restockModalTitle}>📦 补货成功</Text>
+
+            <View className={styles.productHeader}>
+              <View className={styles.productEmoji}>{restockResult.emoji}</View>
+              <View className={styles.productInfo}>
+                <Text className={styles.productName}>{restockResult.productName}</Text>
+              </View>
+            </View>
+
+            <View className={styles.restockModalRow}>
+              <Text className={styles.restockModalLabel}>补货前库存</Text>
+              <Text className={styles.restockModalValue}>{restockResult.stockBefore}{restockResult.unit}</Text>
+            </View>
+
+            <View className={styles.restockModalRow}>
+              <Text className={styles.restockModalLabel}>补货数量</Text>
+              <Text className={styles.restockModalValue}>+{restockResult.restockQty}{restockResult.unit}</Text>
+            </View>
+
+            <View className={styles.restockModalRow}>
+              <Text className={styles.restockModalLabel}>补货后库存</Text>
+              <Text className={styles.restockModalValue}>{restockResult.stockAfter}{restockResult.unit}</Text>
+            </View>
+
+            <View className={styles.restockModalRow}>
+              <Text className={styles.restockModalLabel}>进货单价</Text>
+              <Text className={styles.restockModalValue}>¥{restockResult.unitPrice.toFixed(2)}</Text>
+            </View>
+
+            <View className={styles.restockModalRow}>
+              <Text className={styles.restockModalLabel}>总金额</Text>
+              <Text className={styles.restockModalValue}>¥{restockResult.totalAmount.toFixed(2)}</Text>
+            </View>
+
+            <View className={styles.restockModalRow}>
+              <Text className={styles.restockModalLabel}>库存预警状态</Text>
+              <View className={styles.restockModalCompare}>
+                <Text style={{ color: getStockLevelLabel(restockResult.levelBefore).color }}>
+                  {getStockLevelLabel(restockResult.levelBefore).text}
+                </Text>
+                <Text style={{ margin: '0 8rpx' }}>→</Text>
+                <Text style={{ color: getStockLevelLabel(restockResult.levelAfter).color }}>
+                  {getStockLevelLabel(restockResult.levelAfter).text}
+                </Text>
+              </View>
+            </View>
+
+            <View className={styles.restockModalBtns}>
+              <View
+                className={classnames(styles.restockModalBtn)}
+                onClick={handleViewProductDetail}
+              >
+                查看详情
+              </View>
+              <View
+                className={classnames(styles.restockModalBtn, styles.restockModalBtnPrimary)}
+                onClick={handleCloseRestockModal}
+              >
+                我知道了
+              </View>
+            </View>
+          </View>
         </View>
       )}
 

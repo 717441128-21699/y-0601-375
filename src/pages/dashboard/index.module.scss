@@ -379,3 +379,206 @@
   font-weight: $font-weight-bold;
   color: $color-primary;
 }
+
+.emptyTip {
+  padding: $spacing-xl 0;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.paymentBreakdownSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.paymentBreakdown {
+  margin-top: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.breakdownItem {
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.breakdownHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.breakdownIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.breakdownInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.breakdownLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.breakdownPercent {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.breakdownValues {
+  display: flex;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.breakdownValueItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.breakdownValueLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.breakdownValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.breakdownBar {
+  height: 12rpx;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: $radius-round;
+  overflow: hidden;
+}
+
+.breakdownBarFill {
+  height: 100%;
+  border-radius: $radius-round;
+  transition: width $transition-base;
+}
+
+.profitRankSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.profitRankList {
+  margin-top: $spacing-sm;
+}
+
+.profitRankItem {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.profitRankRank {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.profitRankInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.profitRankHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6rpx;
+}
+
+.profitRankName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  flex: 1;
+  margin-right: $spacing-sm;
+}
+
+.profitRankProfit {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-success;
+  flex-shrink: 0;
+}
+
+.profitRankMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-sm;
+}
+
+.profitRankValues {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-sm;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+}
+
+.profitRankValueItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profitRankValueLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.profitRankValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.profitHighlight {
+  color: $color-success;
+}

@@ -416,3 +416,113 @@
     opacity: 0.8;
   }
 }
+
+.highlightedSection {
+  margin-bottom: $spacing-md;
+}
+
+.highlightedTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-bottom: $spacing-sm;
+  padding-left: $spacing-xs;
+}
+
+.restockModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.restockModalMask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.restockModalCard {
+  position: relative;
+  width: 600rpx;
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  box-shadow: $shadow-popup;
+  z-index: 1;
+}
+
+.restockModalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  text-align: center;
+  margin-bottom: $spacing-lg;
+}
+
+.restockModalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.restockModalLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.restockModalValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.restockModalCompare {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.restockModalBtns {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
+}
+
+.restockModalBtn {
+  flex: 1;
+  padding: $spacing-md;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  text-align: center;
+  background: $color-bg-page;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+}
+
+.restockModalBtnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: #fff;
+  box-shadow: 0 4rpx 12rpx rgba($color-primary, 0.25);
+}

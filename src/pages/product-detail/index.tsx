@@ -21,6 +21,13 @@ const ProductDetailPage: React.FC = () => {
       .slice(0, 10);
   }, [transactions, productId]);
 
+  const stockTx = useMemo(() => {
+    if (!productId) return [];
+    return transactions
+      .filter(t => t.productId === productId && (t.type === 'income' || t.type === 'purchase' || t.type === 'loss'))
+      .sort((a, b) => b.createdAt - a.createdAt);
+  }, [transactions, productId]);
+
   const totalSold = productTx.filter(t => t.type === 'income').reduce((s, t) => s + (t.quantity || 0), 0);
   const totalPurchased = productTx.filter(t => t.type === 'purchase').reduce((s, t) => s + (t.quantity || 0), 0);
   const totalRevenue = productTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
@@ -164,6 +171,57 @@ const ProductDetailPage: React.FC = () => {
                 </View>
               </View>
             ))}
+          </View>
+        )}
+      </View>
+
+      <SectionHeader title="📦 库存流水" subtitle={`${stockTx.length}条`} />
+      <View className={styles.section}>
+        {stockTx.length === 0 ? (
+          <View style={{ padding: 32, alignItems: 'center' }}>
+            <Text style={{ fontSize: 60, opacity: 0.4, marginBottom: 12 }}>📦</Text>
+            <Text style={{ fontSize: 26, color: '#86909C' }}>暂无库存变动记录</Text>
+          </View>
+        ) : (
+          <View className={styles.stockTimeline}>
+            {stockTx.map((t, idx) => {
+              const isLast = idx === stockTx.length - 1;
+              const typeConfig = {
+                income: { icon: '📉', name: '销售', dotClass: styles.dotSale, changeClass: styles.changeSale, prefix: '-' },
+                purchase: { icon: '📈', name: '进货', dotClass: styles.dotPurchase, changeClass: styles.changePurchase, prefix: '+' },
+                loss: { icon: '🗑️', name: '损耗', dotClass: styles.dotLoss, changeClass: styles.changeLoss, prefix: '-' },
+              }[t.type] || { icon: '📦', name: '其他', dotClass: '', changeClass: '', prefix: '' };
+              return (
+                <View key={t.id} className={styles.stockTimelineItem}>
+                  <View className={styles.stockTimelineLeft}>
+                    <View className={classnames(styles.stockTimelineDot, typeConfig.dotClass)}>
+                      <Text>{typeConfig.icon}</Text>
+                    </View>
+                    {!isLast && <View className={styles.stockTimelineLine} />}
+                  </View>
+                  <View className={styles.stockTimelineInfo}>
+                    <View className={styles.stockTimelineType}>
+                      <Text style={{ marginRight: 8 }}>{typeConfig.icon}</Text>
+                      <Text>{typeConfig.name}</Text>
+                    </View>
+                    <Text className={styles.stockTimelineDate}>
+                      {formatDate(t.createdAt, 'MM/DD HH:mm')}
+                    </Text>
+                    {t.note && (
+                      <Text className={styles.txMethod}>{t.note}</Text>
+                    )}
+                    {t.method && t.type === 'income' && (
+                      <Text className={styles.txMethod}>{getPaymentMethodText(t.method)}</Text>
+                    )}
+                  </View>
+                  <View className={styles.stockTimelineRight}>
+                    <Text className={classnames(styles.stockTimelineChange, typeConfig.changeClass)}>
+                      {typeConfig.prefix}{t.quantity}{product?.unit}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
           </View>
         )}
       </View>

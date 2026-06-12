@@ -206,16 +206,27 @@ const CreditPage: React.FC = () => {
           const totalRepaid = cs.totalRepaid;
           const total = totalBorrowed || 1;
           const progress = Math.round((totalRepaid / total) * 100);
+          const handleCardClick = () => {
+            Taro.navigateTo({ url: `/pages/credit-detail/index?id=${c.id}` });
+          };
+          const handleCallClick = (e) => {
+            e.stopPropagation();
+            handleCall(c);
+          };
+          const handleRepayClick = (e) => {
+            e.stopPropagation();
+            handleRepay(c);
+          };
           return (
-            <View key={c.id} className={styles.customerCard}>
-              <View className={styles.customerHeader}>
-                <View className={styles.customerInfo}>
-                  <View className={styles.customerAvatar}>
+            <View key={c.id} className={classnames(styles.customerCard)} onClick={handleCardClick}>
+              <View className={classnames(styles.customerHeader)}>
+                <View className={classnames(styles.customerInfo)}>
+                  <View className={classnames(styles.customerAvatar)}>
                     {c.name.charAt(0)}
                   </View>
-                  <View className={styles.customerText}>
-                    <Text className={styles.customerName}>{c.name}</Text>
-                    <Text className={styles.customerPhone}>{c.phone || '暂无联系电话'}</Text>
+                  <View className={classnames(styles.customerText)}>
+                    <Text className={classnames(styles.customerName)}>{c.name}</Text>
+                    <Text className={classnames(styles.customerPhone)}>{c.phone || '暂无联系电话'}</Text>
                   </View>
                 </View>
                 <View className={classnames(styles.debtBadge, outstanding > 0 ? styles.hasDebt : styles.clear)}>
@@ -223,34 +234,49 @@ const CreditPage: React.FC = () => {
                 </View>
               </View>
 
+              <View className={classnames(styles.customerStatsGrid)}>
+                <View className={classnames(styles.customerStatItem)}>
+                  <Text className={classnames(styles.customerStatLabel)}>累计赊账</Text>
+                  <Text className={classnames(styles.customerStatValue)}>¥{cs.totalBorrowed.toFixed(0)}</Text>
+                </View>
+                <View className={classnames(styles.customerStatItem)}>
+                  <Text className={classnames(styles.customerStatLabel)}>已还款</Text>
+                  <Text className={classnames(styles.customerStatValue)}>¥{cs.totalRepaid.toFixed(0)}</Text>
+                </View>
+                <View className={classnames(styles.customerStatItem)}>
+                  <Text className={classnames(styles.customerStatLabel)}>待收款</Text>
+                  <Text className={classnames(styles.customerStatValue)}>¥{cs.outstanding.toFixed(0)}</Text>
+                </View>
+              </View>
+
               {outstanding > 0 && (
                 <>
-                  <View className={styles.customerProgress}>
-                    <View className={styles.progressBar}>
-                      <View className={styles.progressFill} style={{ width: `${progress}%` }} />
+                  <View className={classnames(styles.customerProgress)}>
+                    <View className={classnames(styles.progressBar)}>
+                      <View className={classnames(styles.progressFill)} style={{ width: `${progress}%` }} />
                     </View>
-                    <View className={styles.progressLabels}>
-                      <Text className={styles.progressLabel}>已还 ¥{totalRepaid.toFixed(0)}</Text>
-                      <Text className={styles.progressLabel}>还款进度 {progress}%</Text>
+                    <View className={classnames(styles.progressLabels)}>
+                      <Text className={classnames(styles.progressLabel)}>已还 ¥{totalRepaid.toFixed(0)}</Text>
+                      <Text className={classnames(styles.progressLabel)}>还款进度 {progress}%</Text>
                     </View>
                   </View>
                 </>
               )}
 
               {records.length > 0 && (
-                <View className={styles.customerRecords}>
+                <View className={classnames(styles.customerRecords)}>
                   {records.slice(0, 3).map(r => (
-                    <View key={r.id} className={styles.recordItem}>
-                      <View className={styles.recordLeft}>
+                    <View key={r.id} className={classnames(styles.recordItem)}>
+                      <View className={classnames(styles.recordLeft)}>
                         <View className={classnames(styles.recordIcon, r.type)}>
                           {r.type === 'borrow' ? '📒' : '✅'}
                         </View>
-                        <View className={styles.recordInfo}>
-                          <Text className={styles.recordType}>
+                        <View className={classnames(styles.recordInfo)}>
+                          <Text className={classnames(styles.recordType)}>
                             {r.type === 'borrow' ? '赊账' : '还款'}
                             {r.note && ` · ${r.note}`}
                           </Text>
-                          <Text className={styles.recordDate}>{formatDate(r.date, 'MM月DD日')}</Text>
+                          <Text className={classnames(styles.recordDate)}>{formatDate(r.date, 'MM月DD日')}</Text>
                         </View>
                       </View>
                       <Text className={classnames(styles.recordAmount, r.type)}>
@@ -261,13 +287,13 @@ const CreditPage: React.FC = () => {
                 </View>
               )}
 
-              <View className={styles.actionRow}>
-                <View className={classnames(styles.actionBtn, styles.btnCall)} onClick={() => handleCall(c)}>
+              <View className={classnames(styles.actionRow)} onClick={(e) => e.stopPropagation()}>
+                <View className={classnames(styles.actionBtn, styles.btnCall)} onClick={handleCallClick}>
                   ⋯ 更多操作
                 </View>
                 <View
                   className={classnames(styles.actionBtn, styles.btnRepay)}
-                  onClick={() => handleRepay(c)}
+                  onClick={handleRepayClick}
                 >
                   💰 登记还款
                 </View>
