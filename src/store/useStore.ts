@@ -4,7 +4,7 @@ import { mockTransactions, mockProducts, mockCustomers, mockCreditRecords, mockC
 import { generateId, getTodayStr } from '../utils';
 import dayjs from 'dayjs';
 
-const STORAGE_KEY = 'taro_shopkeeper_data_v1';
+const STORAGE_KEY = 'taro_shopkeeper_data_v2';
 
 interface AppState {
   transactions: Transaction[];

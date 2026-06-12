@@ -9,10 +9,42 @@ import { formatMoney, formatDate, getTodayStr } from '../../utils';
 const CreditPage: React.FC = () => {
   const { customers, creditRecords, addCustomer, addCreditRecord } = useStore();
 
-  const unpaidCount = customers.filter(c => c.totalDebt > 0).length;
-  const totalDebt = customers.reduce((s, c) => s + c.totalDebt, 0);
-  const totalPaid = customers.reduce((s, c) => s + c.paidBack, 0);
-  const totalLent = totalDebt + totalPaid;
+  const customerStats = useMemo(() => {
+    const stats: Record<string, { totalBorrowed: number; totalRepaid: number; outstanding: number }> = {};
+    creditRecords.forEach(r => {
+      if (!stats[r.customerId]) {
+        stats[r.customerId] = { totalBorrowed: 0, totalRepaid: 0, outstanding: 0 };
+      }
+      if (r.type === 'borrow') {
+        stats[r.customerId].totalBorrowed += r.amount;
+        stats[r.customerId].outstanding += r.amount;
+      } else {
+        stats[r.customerId].totalRepaid += r.amount;
+        stats[r.customerId].outstanding -= r.amount;
+      }
+    });
+    Object.keys(stats).forEach(k => {
+      stats[k].outstanding = Math.max(0, stats[k].outstanding);
+    });
+    return stats;
+  }, [creditRecords]);
+
+  const totalDebt = useMemo(() =>
+    customers.reduce((s, c) => s + (customerStats[c.id]?.outstanding || 0), 0),
+    [customers, customerStats]
+  );
+  const totalPaid = useMemo(() =>
+    customers.reduce((s, c) => s + (customerStats[c.id]?.totalRepaid || 0), 0),
+    [customers, customerStats]
+  );
+  const totalLent = useMemo(() =>
+    customers.reduce((s, c) => s + (customerStats[c.id]?.totalBorrowed || 0), 0),
+    [customers, customerStats]
+  );
+  const unpaidCount = useMemo(() =>
+    customers.filter(c => (customerStats[c.id]?.outstanding || 0) > 0).length,
+    [customers, customerStats]
+  );
 
   const recordsByCustomer = useMemo(() => {
     const map: Record<string, any[]> = {};
@@ -76,14 +108,16 @@ const CreditPage: React.FC = () => {
   };
 
   const handleRepay = (customer: any) => {
-    if (customer.totalDebt <= 0) {
+    const cs = customerStats[customer.id];
+    const outstanding = cs?.outstanding || 0;
+    if (outstanding <= 0) {
       Taro.showToast({ title: '该客户无欠款', icon: 'none' });
       return;
     }
     Taro.showModal({
       title: `登记${customer.name}还款`,
       editable: true,
-      placeholderText: `最多 ${customer.totalDebt.toFixed(2)} 元`,
+      placeholderText: `最多 ${outstanding.toFixed(2)} 元`,
       success: (res) => {
         if (res.confirm && res.content) {
           const amount = parseFloat(res.content) || 0;
@@ -166,8 +200,12 @@ const CreditPage: React.FC = () => {
       ) : (
         customers.map(c => {
           const records = recordsByCustomer[c.id] || [];
-          const total = c.totalDebt + c.paidBack || 1;
-          const progress = Math.round((c.paidBack / total) * 100);
+          const cs = customerStats[c.id] || { totalBorrowed: 0, totalRepaid: 0, outstanding: 0 };
+          const outstanding = cs.outstanding;
+          const totalBorrowed = cs.totalBorrowed;
+          const totalRepaid = cs.totalRepaid;
+          const total = totalBorrowed || 1;
+          const progress = Math.round((totalRepaid / total) * 100);
           return (
             <View key={c.id} className={styles.customerCard}>
               <View className={styles.customerHeader}>
@@ -180,19 +218,19 @@ const CreditPage: React.FC = () => {
                     <Text className={styles.customerPhone}>{c.phone || '暂无联系电话'}</Text>
                   </View>
                 </View>
-                <View className={classnames(styles.debtBadge, c.totalDebt > 0 ? styles.hasDebt : styles.clear)}>
-                  {c.totalDebt > 0 ? `欠¥${c.totalDebt.toFixed(0)}` : '已结清 ✓'}
+                <View className={classnames(styles.debtBadge, outstanding > 0 ? styles.hasDebt : styles.clear)}>
+                  {outstanding > 0 ? `欠¥${outstanding.toFixed(0)}` : '已结清 ✓'}
                 </View>
               </View>
 
-              {c.totalDebt > 0 && (
+              {outstanding > 0 && (
                 <>
                   <View className={styles.customerProgress}>
                     <View className={styles.progressBar}>
                       <View className={styles.progressFill} style={{ width: `${progress}%` }} />
                     </View>
                     <View className={styles.progressLabels}>
-                      <Text className={styles.progressLabel}>已还 ¥{c.paidBack.toFixed(0)}</Text>
+                      <Text className={styles.progressLabel}>已还 ¥{totalRepaid.toFixed(0)}</Text>
                       <Text className={styles.progressLabel}>还款进度 {progress}%</Text>
                     </View>
                   </View>

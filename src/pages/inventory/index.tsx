@@ -10,7 +10,7 @@ import { Product } from '../../types';
 type FilterType = 'all' | 'critical' | 'warning' | 'normal';
 
 const InventoryPage: React.FC = () => {
-  const { products, transactions, updateProductStock, addTransaction } = useStore();
+  const { products, transactions, updateProduct, updateProductStock, addTransaction } = useStore();
   const [filter, setFilter] = useState<FilterType>('all');
 
   const getStockLevel = (product: Product): 'critical' | 'warning' | 'normal' => {
@@ -176,7 +176,8 @@ const InventoryPage: React.FC = () => {
               if (r.confirm && r.content) {
                 const min = parseInt(r.content) || 0;
                 if (min >= 0) {
-                  Taro.showToast({ title: '功能演示', icon: 'none' });
+                  updateProduct(product.id, { minStock: min });
+                  Taro.showToast({ title: `已设为${min}${product.unit}`, icon: 'success' });
                 }
               }
             }
@@ -327,13 +328,13 @@ const InventoryPage: React.FC = () => {
               <View className={styles.actionRow}>
                 <View
                   className={classnames(styles.actionBtn, styles.btnAdjust)}
-                  onClick={() => handleAdjustStock(p)}
+                  onClick={(e) => { e.stopPropagation(); handleAdjustStock(p); }}
                 >
                   🔧 调整库存
                 </View>
                 <View
                   className={classnames(styles.actionBtn, styles.btnRestock)}
-                  onClick={() => handleQuickRestock(p)}
+                  onClick={(e) => { e.stopPropagation(); handleQuickRestock(p); }}
                 >
                   📦 立即补货
                 </View>

@@ -13,10 +13,10 @@ export const mockProducts: Product[] = [
 ];
 
 export const mockCustomers: Customer[] = [
-  { id: 'c1', name: '王老板', phone: '138****8888', totalDebt: 1280, paidBack: 720, createdAt: Date.now() - 86400000 * 20 },
-  { id: 'c2', name: '李阿姨', phone: '139****6666', totalDebt: 560, paidBack: 560, createdAt: Date.now() - 86400000 * 15 },
-  { id: 'c3', name: '张师傅', phone: '137****3333', totalDebt: 890, paidBack: 200, createdAt: Date.now() - 86400000 * 10 },
-  { id: 'c4', name: '陈大哥', phone: '136****2222', totalDebt: 350, paidBack: 350, createdAt: Date.now() - 86400000 * 8 },
+  { id: 'c1', name: '王老板', phone: '138****8888', totalDebt: 560, paidBack: 720, createdAt: Date.now() - 86400000 * 20 },
+  { id: 'c2', name: '李阿姨', phone: '139****6666', totalDebt: 0, paidBack: 560, createdAt: Date.now() - 86400000 * 15 },
+  { id: 'c3', name: '张师傅', phone: '137****3333', totalDebt: 690, paidBack: 200, createdAt: Date.now() - 86400000 * 10 },
+  { id: 'c4', name: '陈大哥', phone: '136****2222', totalDebt: 0, paidBack: 350, createdAt: Date.now() - 86400000 * 8 },
   { id: 'c5', name: '刘大姐', phone: '135****1111', totalDebt: 420, paidBack: 0, createdAt: Date.now() - 86400000 * 5 },
 ];
 
@@ -39,9 +39,13 @@ export const mockCreditRecords: CreditRecord[] = [
   { id: 'cr2', customerId: 'c1', customerName: '王老板', type: 'borrow', amount: 280, date: formatDate(Date.now() - 86400000 * 8), note: '补充进货', createdAt: Date.now() - 86400000 * 8 },
   { id: 'cr3', customerId: 'c1', customerName: '王老板', type: 'repay', amount: 500, date: formatDate(Date.now() - 86400000 * 5), note: '现金还款', createdAt: Date.now() - 86400000 * 5 },
   { id: 'cr4', customerId: 'c1', customerName: '王老板', type: 'repay', amount: 220, date: formatDate(Date.now() - 86400000 * 2), note: '微信转账', createdAt: Date.now() - 86400000 * 2 },
-  { id: 'cr5', customerId: 'c3', customerName: '张师傅', type: 'borrow', amount: 890, date: formatDate(Date.now() - 86400000 * 10), note: '菜款', createdAt: Date.now() - 86400000 * 10 },
-  { id: 'cr6', customerId: 'c3', customerName: '张师傅', type: 'repay', amount: 200, date: formatDate(Date.now() - 86400000 * 3), note: '还部分', createdAt: Date.now() - 86400000 * 3 },
-  { id: 'cr7', customerId: 'c5', customerName: '刘大姐', type: 'borrow', amount: 420, date: formatDate(Date.now() - 86400000 * 5), note: '', createdAt: Date.now() - 86400000 * 5 },
+  { id: 'cr5', customerId: 'c2', customerName: '李阿姨', type: 'borrow', amount: 560, date: formatDate(Date.now() - 86400000 * 14), note: '日常采购', createdAt: Date.now() - 86400000 * 14 },
+  { id: 'cr6', customerId: 'c2', customerName: '李阿姨', type: 'repay', amount: 560, date: formatDate(Date.now() - 86400000 * 3), note: '一次还清', createdAt: Date.now() - 86400000 * 3 },
+  { id: 'cr7', customerId: 'c3', customerName: '张师傅', type: 'borrow', amount: 890, date: formatDate(Date.now() - 86400000 * 10), note: '菜款', createdAt: Date.now() - 86400000 * 10 },
+  { id: 'cr8', customerId: 'c3', customerName: '张师傅', type: 'repay', amount: 200, date: formatDate(Date.now() - 86400000 * 3), note: '还部分', createdAt: Date.now() - 86400000 * 3 },
+  { id: 'cr9', customerId: 'c4', customerName: '陈大哥', type: 'borrow', amount: 350, date: formatDate(Date.now() - 86400000 * 7), note: '采购肉品', createdAt: Date.now() - 86400000 * 7 },
+  { id: 'cr10', customerId: 'c4', customerName: '陈大哥', type: 'repay', amount: 350, date: formatDate(Date.now() - 86400000 * 1), note: '支付宝还款', createdAt: Date.now() - 86400000 * 1 },
+  { id: 'cr11', customerId: 'c5', customerName: '刘大姐', type: 'borrow', amount: 420, date: formatDate(Date.now() - 86400000 * 5), note: '', createdAt: Date.now() - 86400000 * 5 },
 ];
 
 export const mockCalendarEvents: CalendarEvent[] = [

@@ -4,7 +4,7 @@ import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useStore } from '../../store/useStore';
-import { formatMoney, calculateProfitRate, formatDate } from '../../utils';
+import { formatMoney, calculateProfitRate, formatDate, getTransactionTypeText, getPaymentMethodText } from '../../utils';
 import SectionHeader from '../../components/SectionHeader';
 
 const ProductDetailPage: React.FC = () => {
@@ -16,7 +16,9 @@ const ProductDetailPage: React.FC = () => {
 
   const productTx = useMemo(() => {
     if (!productId) return [];
-    return transactions.filter(t => t.productId === productId).slice(0, 10);
+    return [...transactions.filter(t => t.productId === productId)]
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, 10);
   }, [transactions, productId]);
 
   const totalSold = productTx.filter(t => t.type === 'income').reduce((s, t) => s + (t.quantity || 0), 0);
@@ -143,9 +145,14 @@ const ProductDetailPage: React.FC = () => {
               <View key={t.id} className={styles.txItem}>
                 <View className={styles.txLeft}>
                   <Text className={styles.txType}>
-                    {t.type === 'income' ? '销售' : t.type === 'purchase' ? '进货' : t.type === 'loss' ? '损耗' : '其他'}
+                    {getTransactionTypeText(t.type)}
                   </Text>
-                  <Text className={styles.txDate}>{formatDate(t.date, 'MM/DD HH:mm')}</Text>
+                  <Text className={styles.txDate}>
+                    {formatDate(t.createdAt, 'MM/DD HH:mm')}
+                  </Text>
+                  <Text className={styles.txMethod}>
+                    {getPaymentMethodText(t.method)}
+                  </Text>
                 </View>
                 <View className={styles.txRight}>
                   <Text className={classnames(styles.txAmount, t.type === 'income' ? styles.amountIn : styles.amountOut)}>
