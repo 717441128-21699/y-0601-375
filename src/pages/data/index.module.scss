@@ -1,0 +1,176 @@
+@use '@/styles/variables.scss' as *;
+
+.pageContainer {
+  padding: 0 $page-padding;
+  padding-bottom: 140rpx;
+}
+
+.header {
+  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin: $spacing-lg 0 $spacing-md;
+  box-shadow: 0 8rpx 24rpx rgba(139, 92, 246, 0.25);
+}
+
+.headerTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: #fff;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+}
+
+.headerDesc {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+}
+
+.functionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.functionCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.functionIcon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  margin-bottom: $spacing-md;
+}
+
+.functionIcon1 { background: rgba(#FF7A45, 0.12); }
+.functionIcon2 { background: rgba(#2DB84D, 0.12); }
+.functionIcon3 { background: rgba(#EF4444, 0.12); }
+.functionIcon4 { background: rgba(#3B82F6, 0.12); }
+
+.functionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.functionDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  line-height: 1.5;
+}
+
+.functionBadge {
+  margin-top: $spacing-sm;
+  display: inline-block;
+  font-size: $font-size-xs;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  font-weight: $font-weight-medium;
+}
+
+.badgeWarn {
+  background: rgba($color-warning, 0.1);
+  color: $color-warning;
+}
+.badgeDanger {
+  background: rgba($color-error, 0.1);
+  color: $color-error;
+}
+.badgeInfo {
+  background: rgba($color-info, 0.1);
+  color: $color-info;
+}
+
+.quickSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.quickList {
+  margin-top: $spacing-sm;
+}
+
+.quickItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.quickLeft {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.quickIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: $color-bg-page;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.quickInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.quickName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.quickMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.quickAmount {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  margin-left: $spacing-md;
+}
+
+.amountDebt {
+  color: $color-error;
+}
+.amountLow {
+  color: $color-warning;
+}
+.amountPositive {
+  color: $color-success;
+}

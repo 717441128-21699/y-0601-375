@@ -1,0 +1,312 @@
+@use '@/styles/variables.scss' as *;
+
+.pageContainer {
+  padding: 0 $page-padding;
+  padding-bottom: 200rpx;
+}
+
+.summaryHeader {
+  background: linear-gradient(135deg, $color-warning 0%, #FBBF24 100%);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin: $spacing-lg 0 $spacing-md;
+  box-shadow: 0 8rpx 24rpx rgba($color-warning, 0.25);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.summaryTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.summaryCount {
+  padding: 4rpx 20rpx;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+}
+
+.summaryMain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md 0 $spacing-lg;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.2);
+  margin-bottom: $spacing-lg;
+}
+
+.summaryLabel {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: $spacing-xs;
+}
+
+.summaryValue {
+  font-size: 72rpx;
+  font-weight: $font-weight-bold;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.summaryStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 4rpx;
+}
+
+.statValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: #fff;
+}
+
+.customerCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.customerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+}
+
+.customerInfo {
+  display: flex;
+  align-items: center;
+}
+
+.customerAvatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-round;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #fff;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.customerText {
+  display: flex;
+  flex-direction: column;
+}
+
+.customerName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.customerPhone {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.debtBadge {
+  padding: 6rpx 20rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+
+  &.hasDebt {
+    background: rgba($color-error, 0.1);
+    color: $color-error;
+  }
+  &.clear {
+    background: rgba($color-success, 0.1);
+    color: $color-success;
+  }
+}
+
+.customerProgress {
+  margin-bottom: $spacing-md;
+}
+
+.progressBar {
+  height: 12rpx;
+  background: $color-bg-page;
+  border-radius: $radius-round;
+  overflow: hidden;
+  margin-bottom: $spacing-xs;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-success 0%, #52D972 100%);
+  border-radius: $radius-round;
+  transition: width $transition-base;
+}
+
+.progressLabels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.progressLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.customerRecords {
+  border-top: 1rpx solid $color-divider;
+  padding-top: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.recordItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+}
+
+.recordLeft {
+  display: flex;
+  align-items: center;
+}
+
+.recordIcon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  margin-right: $spacing-sm;
+
+  &.borrow {
+    background: rgba($color-error, 0.1);
+  }
+  &.repay {
+    background: rgba($color-success, 0.1);
+  }
+}
+
+.recordInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.recordType {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.recordDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.recordAmount {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+
+  &.borrow {
+    color: $color-error;
+  }
+  &.repay {
+    color: $color-success;
+  }
+}
+
+.actionRow {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.actionBtn {
+  flex: 1;
+  padding: $spacing-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  text-align: center;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &.btnRepay {
+    background: linear-gradient(135deg, $color-success 0%, #52D972 100%);
+    color: #fff;
+  }
+  &.btnCall {
+    background: $color-bg-page;
+    color: $color-text-secondary;
+  }
+}
+
+.emptyState {
+  padding: $spacing-xl * 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+}
+
+.emptyIcon {
+  font-size: 100rpx;
+  margin-bottom: $spacing-md;
+  opacity: 0.4;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
+
+.addCustomerBtn {
+  position: fixed;
+  right: $page-padding;
+  bottom: 120rpx;
+  height: $button-height-lg;
+  padding: 0 $spacing-xl;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 32rpx rgba($color-primary, 0.35);
+  z-index: 100;
+}
+
+.addCustomerText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: #fff;
+}

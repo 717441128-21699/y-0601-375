@@ -1,0 +1,381 @@
+@use '@/styles/variables.scss' as *;
+
+.pageContainer {
+  padding: 0 $page-padding;
+  padding-bottom: 140rpx;
+}
+
+.periodTabs {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  padding: 6rpx;
+  margin: $spacing-lg 0 $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.periodTab {
+  flex: 1;
+  padding: $spacing-sm 0;
+  text-align: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary;
+    color: #fff;
+  }
+}
+
+.kpiSection {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.kpiMain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md 0 $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  margin-bottom: $spacing-lg;
+}
+
+.kpiLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.kpiValue {
+  font-size: 72rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: 1.1;
+}
+
+.kpiValueSymbol {
+  font-size: $font-size-xl;
+  margin-right: 6rpx;
+  opacity: 0.85;
+}
+
+.kpiChange {
+  margin-top: $spacing-sm;
+  padding: 4rpx 20rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+
+  &.up {
+    background: rgba($color-success, 0.1);
+    color: $color-success;
+  }
+  &.down {
+    background: rgba($color-error, 0.1);
+    color: $color-error;
+  }
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+}
+
+.kpiItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpiItemLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 6rpx;
+  display: flex;
+  align-items: center;
+}
+
+.kpiItemIcon {
+  margin-right: 6rpx;
+}
+
+.kpiItemValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.chartSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.chartTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+}
+
+.chartTitleIcon {
+  margin-right: $spacing-xs;
+}
+
+.chartBars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 280rpx;
+  padding: 0 8rpx;
+  margin-bottom: $spacing-md;
+}
+
+.chartBarWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 80rpx;
+}
+
+.chartBar {
+  width: 100%;
+  max-width: 56rpx;
+  background: linear-gradient(180deg, $color-primary-light 0%, $color-primary 100%);
+  border-radius: $radius-sm $radius-sm 4rpx 4rpx;
+  min-height: 8rpx;
+  position: relative;
+  transition: all $transition-base;
+  margin-bottom: $spacing-sm;
+
+  &.negative {
+    background: linear-gradient(180deg, #FF8888 0%, $color-error 100%);
+  }
+}
+
+.chartBarValue {
+  position: absolute;
+  top: -40rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20rpx;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.chartBarLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.paymentPieSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.pieRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.pieVisual {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: $radius-round;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 40rpx #fff;
+}
+
+.pieCashFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: $color-cash;
+}
+
+.pieScanFill {
+  position: absolute;
+  top: 40%;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: $color-scan;
+}
+
+.pieOtherFill {
+  position: absolute;
+  top: 90%;
+  left: 0;
+  right: 0;
+  height: 10%;
+  background: $color-warning;
+}
+
+.pieLegend {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.legendDot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: $radius-round;
+}
+
+.legendText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  min-width: 100rpx;
+}
+
+.legendValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.hotProductsSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.hotList {
+  margin-top: $spacing-sm;
+}
+
+.hotItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.hotRank {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+  color: #fff;
+
+  &.rank1 {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  }
+  &.rank2 {
+    background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%);
+  }
+  &.rank3 {
+    background: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);
+  }
+  &.rankOther {
+    background: $color-bg-page;
+    color: $color-text-tertiary;
+  }
+}
+
+.hotInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.hotName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+  @include text-ellipsis;
+}
+
+.hotMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.hotRevenue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-success;
+  margin-left: $spacing-md;
+  flex-shrink: 0;
+}
+
+.turnoverSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.turnoverStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.turnoverItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.turnoverLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.turnoverValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}

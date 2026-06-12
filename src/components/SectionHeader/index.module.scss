@@ -1,0 +1,44 @@
+@use '@/styles/variables.scss' as *;
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-lg 0 $spacing-md;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.titleBar {
+  width: 8rpx;
+  height: 32rpx;
+  background: linear-gradient(180deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-xs;
+  margin-right: $spacing-sm;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.subtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.extra {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}

@@ -1,0 +1,61 @@
+@use '@/styles/variables.scss' as *;
+
+.btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+  flex: 1;
+  min-width: 0;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.97);
+  }
+
+  &.colorGreen {
+    .iconWrap { background: rgba($color-success, 0.12); }
+    .icon { color: $color-success; }
+  }
+  &.colorRed {
+    .iconWrap { background: rgba($color-error, 0.12); }
+    .icon { color: $color-error; }
+  }
+  &.colorOrange {
+    .iconWrap { background: rgba($color-primary, 0.12); }
+    .icon { color: $color-primary; }
+  }
+  &.colorBlue {
+    .iconWrap { background: rgba($color-scan, 0.12); }
+    .icon { color: $color-scan; }
+  }
+  &.colorPurple {
+    .iconWrap { background: rgba(#8B5CF6, 0.12); }
+    .icon { color: #8B5CF6; }
+  }
+}
+
+.iconWrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-sm;
+}
+
+.icon {
+  font-size: 44rpx;
+}
+
+.label {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  text-align: center;
+}

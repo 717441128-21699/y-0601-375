@@ -1,0 +1,143 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.compact {
+  padding: $spacing-md;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.category {
+  font-size: $font-size-xs;
+  padding: 4rpx 12rpx;
+  background: $color-bg-tag;
+  color: $color-primary;
+  border-radius: $radius-xs;
+}
+
+.lowStockTag {
+  background: rgba($color-inventory-warn, 0.1);
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+}
+
+.lowStockText {
+  font-size: $font-size-xs;
+  color: $color-inventory-warn;
+  font-weight: $font-weight-medium;
+}
+
+.priceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.priceItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.priceLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.costPrice {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.salePrice {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.profitText {
+  font-size: $font-size-md;
+  color: $color-success;
+  font-weight: $font-weight-semibold;
+}
+
+.rateText {
+  font-size: $font-size-md;
+  color: $color-warning;
+  font-weight: $font-weight-semibold;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.stockRow {
+  display: flex;
+  align-items: center;
+}
+
+.stockLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-right: $spacing-xs;
+}
+
+.stockValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+
+  &.stockWarn {
+    color: $color-inventory-warn;
+  }
+}
+
+.minStock {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+}
+
+.revenueRow {
+  display: flex;
+  align-items: center;
+}
+
+.revenueText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}

@@ -1,0 +1,194 @@
+@use '@/styles/variables.scss' as *;
+
+.pageContainer {
+  padding: 0 $page-padding;
+  padding-bottom: 140rpx;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin: $spacing-lg 0;
+  box-shadow: 0 8rpx 24rpx rgba($color-primary, 0.2);
+}
+
+.productName {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: #fff;
+  margin-bottom: $spacing-sm;
+}
+
+.productCategory {
+  display: inline-block;
+  padding: 4rpx 20rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+  color: #fff;
+  margin-bottom: $spacing-lg;
+}
+
+.headerStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+}
+
+.headerItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerItemLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 4rpx;
+}
+
+.headerItemValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: #fff;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.priceCompare {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+}
+
+.priceItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.priceLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.priceValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+}
+
+.priceCost { color: $color-text-secondary; }
+.priceSale { color: $color-primary; }
+.priceProfit { color: $color-success; }
+
+.stockSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stockInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.stockLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: 4rpx;
+}
+
+.stockValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.stockWarn {
+  color: $color-inventory-warn;
+}
+
+.stockBtns {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.stockBtn {
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+}
+
+.btnAdd {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+}
+
+.btnMinus {
+  background: rgba($color-warning, 0.1);
+  color: $color-warning;
+}
+
+.txList {
+  margin-top: $spacing-sm;
+}
+
+.txItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.txLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.txType {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.txDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.txRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.txAmount {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.amountIn { color: $color-success; }
+.amountOut { color: $color-error; }
+
+.txQty {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
