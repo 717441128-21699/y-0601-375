@@ -4,14 +4,21 @@ import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useStore } from '../../store/useStore';
 import { formatMoney, formatDate, calculateProfitRate } from '../../utils';
-import { mockDailyStats } from '../../data/mockData';
 import SectionHeader from '../../components/SectionHeader';
 
 const DashboardPage: React.FC = () => {
-  const { transactions, products, getHotProducts } = useStore();
+  const { transactions, products, getHotProducts, getDailyStats } = useStore();
   const [period, setPeriod] = useState<'week' | 'month'>('week');
 
-  const dailyStats = mockDailyStats;
+  const days = period === 'week' ? 7 : 30;
+
+  const dailyStats = useMemo(() => {
+    return getDailyStats(days);
+  }, [getDailyStats, days, transactions]);
+
+  const prevDailyStats = useMemo(() => {
+    return getDailyStats(days * 2).slice(0, days);
+  }, [getDailyStats, days, transactions]);
 
   const stats = useMemo(() => {
     const totalIncome = dailyStats.reduce((s, d) => s + d.totalIncome, 0);
@@ -21,8 +28,8 @@ const DashboardPage: React.FC = () => {
     const totalTx = dailyStats.reduce((s, d) => s + d.transactionCount, 0);
     const profit = totalIncome - totalExpense;
 
-    const prevIncome = totalIncome * (0.85 + Math.random() * 0.2);
-    const change = ((totalIncome - prevIncome) / prevIncome) * 100;
+    const prevIncome = prevDailyStats.reduce((s, d) => s + d.totalIncome, 0);
+    const change = prevIncome > 0 ? ((totalIncome - prevIncome) / prevIncome) * 100 : 0;
 
     return {
       totalIncome,
@@ -34,12 +41,12 @@ const DashboardPage: React.FC = () => {
       change: Math.round(change),
       profitRate: totalIncome > 0 ? calculateProfitRate(totalIncome, totalExpense) : 0,
     };
-  }, [dailyStats]);
+  }, [dailyStats, prevDailyStats]);
 
   const hotProducts = getHotProducts();
 
   const totalStockValue = products.reduce((s, p) => s + p.stock * p.costPrice, 0);
-  const avgDailySales = stats.totalIncome / dailyStats.length;
+  const avgDailySales = stats.totalIncome / dailyStats.length || 1;
   const turnoverDays = avgDailySales > 0 ? Math.round(totalStockValue / avgDailySales) : 0;
 
   const totalPayment = stats.totalCash + stats.totalScan || 1;

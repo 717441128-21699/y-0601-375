@@ -94,87 +94,168 @@ const ExportPage: React.FC = () => {
     });
   };
 
+  const escapeCSV = (value: string | number): string => {
+    const str = String(value);
+    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
   const generateCSVContent = (): string => {
     let lines: string[] = [];
-    lines.push(`月度流水账单 - ${currentMonthDisplay}`);
-    lines.push(`导出时间: ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`);
+    lines.push(escapeCSV(`月度流水账单 - ${currentMonthDisplay}`));
+    lines.push(escapeCSV(`导出时间: ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`));
     lines.push('');
-    lines.push(`总收入,${monthData.totalIncome.toFixed(2)}`);
-    lines.push(`总支出,${monthData.totalExpense.toFixed(2)}`);
-    lines.push(`净利润,${monthData.profit.toFixed(2)}`);
-    lines.push(`现金收入,${monthData.cashIncome.toFixed(2)}`);
-    lines.push(`扫码收入,${monthData.scanIncome.toFixed(2)}`);
+    lines.push([escapeCSV('总收入'), escapeCSV(monthData.totalIncome.toFixed(2))].join(','));
+    lines.push([escapeCSV('总支出'), escapeCSV(monthData.totalExpense.toFixed(2))].join(','));
+    lines.push([escapeCSV('净利润'), escapeCSV(monthData.profit.toFixed(2))].join(','));
+    lines.push([escapeCSV('现金收入'), escapeCSV(monthData.cashIncome.toFixed(2))].join(','));
+    lines.push([escapeCSV('扫码收入'), escapeCSV(monthData.scanIncome.toFixed(2))].join(','));
     lines.push('');
-    lines.push('日期,类型,商品/备注,金额,收款方式');
+    lines.push([
+      escapeCSV('日期'),
+      escapeCSV('类型'),
+      escapeCSV('商品/备注'),
+      escapeCSV('金额'),
+      escapeCSV('收款方式')
+    ].join(','));
     const sortedTx = [...transactions]
       .filter(t => t.date.startsWith(currentMonthStr))
       .sort((a, b) => b.createdAt - a.createdAt);
     sortedTx.forEach(t => {
       const sign = t.type === 'income' ? '+' : '-';
       lines.push([
-        t.date,
-        getTransactionTypeText(t.type),
-        (t.productName || t.customerName || t.note || ''),
-        `${sign}${t.amount.toFixed(2)}`,
-        getPaymentMethodText(t.method)
+        escapeCSV(t.date),
+        escapeCSV(getTransactionTypeText(t.type)),
+        escapeCSV(t.productName || t.customerName || t.note || ''),
+        escapeCSV(`${sign}${t.amount.toFixed(2)}`),
+        escapeCSV(getPaymentMethodText(t.method))
       ].join(','));
     });
     if (includeProducts) {
       lines.push('');
-      lines.push('=== 商品明细 ===');
-      lines.push('商品名称,分类,成本价,售价,库存,最低库存,累计销售,累计收入');
+      lines.push(escapeCSV('=== 商品明细 ==='));
+      lines.push([
+        escapeCSV('商品名称'),
+        escapeCSV('分类'),
+        escapeCSV('成本价'),
+        escapeCSV('售价'),
+        escapeCSV('库存'),
+        escapeCSV('最低库存'),
+        escapeCSV('累计销售'),
+        escapeCSV('累计收入')
+      ].join(','));
       products.forEach(p => {
         lines.push([
-          p.name, p.category, p.costPrice, p.salePrice,
-          `${p.stock}${p.unit}`, `${p.minStock}${p.unit}`,
-          `${p.totalSold}${p.unit}`, p.totalRevenue.toFixed(2)
+          escapeCSV(p.name),
+          escapeCSV(p.category),
+          escapeCSV(p.costPrice),
+          escapeCSV(p.salePrice),
+          escapeCSV(`${p.stock}${p.unit}`),
+          escapeCSV(`${p.minStock}${p.unit}`),
+          escapeCSV(`${p.totalSold}${p.unit}`),
+          escapeCSV(p.totalRevenue.toFixed(2))
         ].join(','));
       });
     }
     if (includeCredits) {
       lines.push('');
-      lines.push('=== 欠款往来 ===');
-      lines.push('客户姓名,电话,累计赊账,已还款,待收款');
+      lines.push(escapeCSV('=== 欠款往来 ==='));
+      lines.push([
+        escapeCSV('客户姓名'),
+        escapeCSV('电话'),
+        escapeCSV('累计赊账'),
+        escapeCSV('已还款'),
+        escapeCSV('待收款')
+      ].join(','));
       customers.forEach(c => {
         lines.push([
-          c.name, c.phone || '-',
-          (c.totalDebt + c.paidBack).toFixed(2),
-          c.paidBack.toFixed(2),
-          c.totalDebt.toFixed(2)
+          escapeCSV(c.name),
+          escapeCSV(c.phone || '-'),
+          escapeCSV((c.totalDebt + c.paidBack).toFixed(2)),
+          escapeCSV(c.paidBack.toFixed(2)),
+          escapeCSV(c.totalDebt.toFixed(2))
         ].join(','));
       });
     }
     return lines.join('\n');
   };
 
+  const handleCopy = async () => {
+    const csv = generateCSVContent();
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(csv);
+        Taro.showToast({ title: '已复制到剪贴板', icon: 'success' });
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = csv;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        Taro.showToast({ title: '已复制到剪贴板', icon: 'success' });
+      }
+    } catch (e) {
+      Taro.showToast({ title: '复制失败，请重试', icon: 'none' });
+    }
+  };
+
   const handleExport = () => {
     const csv = generateCSVContent();
-    console.log('[Export] CSV content length:', csv.length, 'chars');
+    const fileName = `流水账单_${currentMonthDisplay}.csv`;
     Taro.showLoading({ title: '正在导出...', mask: true });
-    setTimeout(() => {
-      Taro.hideLoading();
-      Taro.showModal({
-        title: '✅ 导出成功',
-        content: `${currentMonthDisplay}流水已生成\n共 ${monthData.txCount} 笔流水\n总流水 ¥${(monthData.totalIncome + monthData.totalExpense).toFixed(0)} 已发送给${recipient}`,
-        showCancel: false,
-        confirmText: '好的'
-      });
-      console.log('[Export] exported:', {
-        month: currentMonthStr,
-        format: exportFormat,
-        includeProducts,
-        includeCredits,
-        recipient
-      });
-    }, 1200);
+
+    const isH5 = typeof window !== 'undefined' && typeof document !== 'undefined';
+
+    if (isH5) {
+      try {
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        setTimeout(() => {
+          Taro.hideLoading();
+          Taro.showToast({ title: '导出成功', icon: 'success' });
+        }, 500);
+      } catch (e) {
+        Taro.hideLoading();
+        handleCopy();
+      }
+    } else {
+      setTimeout(() => {
+        Taro.hideLoading();
+        Taro.showModal({
+          title: '✅ 导出成功',
+          content: `${currentMonthDisplay}流水已生成\n共 ${monthData.txCount} 笔流水\n总流水 ¥${(monthData.totalIncome + monthData.totalExpense).toFixed(0)} 已发送给${recipient}`,
+          showCancel: false,
+          confirmText: '好的'
+        });
+      }, 1200);
+    }
   };
 
   const handleShare = () => {
     Taro.showActionSheet({
       itemList: ['发送给微信好友', '生成分享图片', '保存到文件', '复制数据'],
       success: (res) => {
-        const actions = ['发送给微信好友', '生成分享图片', '保存到文件', '复制数据'];
-        Taro.showToast({ title: `${actions[res.tapIndex]}功能演示`, icon: 'none' });
+        if (res.tapIndex === 3) {
+          handleCopy();
+        } else {
+          const actions = ['发送给微信好友', '生成分享图片', '保存到文件'];
+          Taro.showToast({ title: `${actions[res.tapIndex]}功能演示`, icon: 'none' });
+        }
       }
     });
   };
@@ -373,6 +454,11 @@ const ExportPage: React.FC = () => {
           </View>
           <View className={classnames(styles.exportBtn, styles.btnPrimary)} onClick={handleExport}>
             📤 立即导出
+          </View>
+        </View>
+        <View className={styles.copyBtnRow}>
+          <View className={classnames(styles.copyBtn)} onClick={handleCopy}>
+            📋 复制内容
           </View>
         </View>
       </View>

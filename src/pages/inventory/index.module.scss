@@ -407,3 +407,12 @@
 .bottomSpacing {
   height: 120rpx;
 }
+
+.clickable {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:active {
+    opacity: 0.8;
+  }
+}

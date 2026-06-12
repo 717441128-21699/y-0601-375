@@ -98,7 +98,7 @@ const DataPage: React.FC = () => {
         ) : (
           <View className={styles.quickList}>
             {lowStock.slice(0, 3).map(p => (
-              <View key={p.id} className={styles.quickItem} onClick={() => handleNavigate('/pages/inventory/index')}>
+              <View key={p.id} className={styles.quickItem} onClick={() => handleNavigate(`/pages/product-detail/index?id=${p.id}`)}>
                 <View className={styles.quickLeft}>
                   <View className={styles.quickIcon}>📦</View>
                   <View className={styles.quickInfo}>

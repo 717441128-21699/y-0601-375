@@ -60,6 +60,7 @@ const InventoryPage: React.FC = () => {
       .slice(0, 5)
       .map(t => ({
         id: t.id,
+        productId: t.productId,
         productName: t.productName || '进货',
         date: t.date,
         amount: t.quantity || 0,
@@ -254,10 +255,14 @@ const InventoryPage: React.FC = () => {
           const progress = Math.min(100, (p.stock / (p.minStock * 2)) * 100);
           const days = getDaysUntilOut(p);
           const daysText = days >= 999 ? '暂无销售记录' : `预计 ${days} 天后缺货`;
+          const handleProductClick = () => {
+            Taro.navigateTo({ url: `/pages/product-detail/index?id=${p.id}` });
+          };
           return (
             <View
               key={p.id}
-              className={classnames(styles.productCard, level === 'critical' ? styles.critical : '')}
+              className={classnames(styles.productCard, level === 'critical' ? styles.critical : '', styles.clickable)}
+              onClick={handleProductClick}
             >
               <View
                 className={classnames(styles.alertBadge, level === 'critical' ? styles.critical : styles.warning)}
@@ -345,7 +350,11 @@ const InventoryPage: React.FC = () => {
             最近补货记录
           </Text>
           {restockHistory.map(h => (
-            <View key={h.id} className={styles.historyItem}>
+            <View
+              key={h.id}
+              className={classnames(styles.historyItem, styles.clickable)}
+              onClick={() => Taro.navigateTo({ url: `/pages/product-detail/index?id=${h.productId}` })}
+            >
               <View className={styles.historyLeft}>
                 <View className={styles.historyDot} />
                 <View className={styles.historyInfo}>

@@ -404,3 +404,25 @@
     color: $color-text-secondary;
   }
 }
+
+.copyBtnRow {
+  margin-top: $spacing-md;
+}
+
+.copyBtn {
+  width: 100%;
+  padding: $spacing-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-align: center;
+  background: rgba($color-primary, 0.08);
+  color: $color-primary;
+  border: 2rpx dashed rgba($color-primary, 0.3);
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.97);
+    background: rgba($color-primary, 0.12);
+  }
+}

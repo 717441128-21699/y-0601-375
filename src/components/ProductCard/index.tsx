@@ -8,15 +8,25 @@ import { formatMoney, calculateProfitRate } from '../../utils';
 interface ProductCardProps {
   product: Product;
   compact?: boolean;
+  onClick?: () => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false, onClick }) => {
   const isLowStock = product.stock <= product.minStock;
   const profitRate = calculateProfitRate(product.salePrice, product.costPrice);
   const profit = product.salePrice - product.costPrice;
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
-    <View className={classnames(styles.card, compact && styles.compact)}>
+    <View
+      className={classnames(styles.card, compact && styles.compact, onClick && styles.clickable)}
+      onClick={handleClick}
+    >
       <View className={styles.header}>
         <View className={styles.nameRow}>
           <Text className={styles.name}>{product.name}</Text>
